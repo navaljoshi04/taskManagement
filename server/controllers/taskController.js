@@ -17,7 +17,17 @@ export const createTask = async (req, res) => {
     if (!title || !description || !userID) {
       return res.status(401).json({ message: "All fields are required" });
     }
-
+    const checkIfTaskIsDuplicate = await Task.findOne({
+      title,
+      description,
+      userID,
+    });
+    if (checkIfTaskIsDuplicate) {
+      return res.status(409).json({
+        message: "Task already exists — duplicate task not allowed",
+        task: checkIfTaskIsDuplicate,
+      });
+    }
     const task = new Task({
       title,
       description,
@@ -36,13 +46,6 @@ export const createTask = async (req, res) => {
       .json({ message: "Error while creating tasks", error: error.message });
   }
 };
-
-// GET /api/v1/tasks - Get all tasks (with filters: status, search, sort, pagination)
-// GET /api/v1/tasks/:id - Get single task
-// POST /api/v1/tasks - Create new task
-// PUT /api/v1/tasks/:id - Update existing task
-// PATCH /api/v1/tasks/:id/complete - Mark task as completed
-// DELETE /api/v1/tasks/:id - Delete task (optional)
 
 export const getTaskById = async (req, res) => {
   try {
@@ -103,12 +106,10 @@ export const changeStatusById = async (req, res) => {
         message: "Task can't be found so unable to change the status",
       });
     }
-    return res
-      .status(200)
-      .json({
-        message: "Task status updated successfully",
-        status: updatedStatus,
-      });
+    return res.status(200).json({
+      message: "Task status updated successfully",
+      status: updatedStatus,
+    });
   } catch (error) {
     return res.status(500).json({
       message: "Error while updating task",

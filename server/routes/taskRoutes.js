@@ -12,8 +12,8 @@ const router = express.Router();
 
 router.get("/", authMiddleware, getTasks);
 router.get("/:id", authMiddleware, getTaskById);
-router.post("/", authMiddleware, createTask);
-router.put("/:id/status", authMiddleware, changeStatusById);
+router.post("/create", authMiddleware, createTask);
+router.patch("/:id/status", authMiddleware, changeStatusById);
 router.patch("/:id", authMiddleware, updateTaskById);
 
 export default router;
