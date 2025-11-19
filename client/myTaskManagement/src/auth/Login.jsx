@@ -30,6 +30,7 @@ const Login = () => {
         formData
       );
       console.log(response.data);
+      localStorage.setItem("token", response?.data?.token);
       setSuccess("Login successfull ! Redirecting to home page...");
       setTimeout(() => {
         setSuccess("");
