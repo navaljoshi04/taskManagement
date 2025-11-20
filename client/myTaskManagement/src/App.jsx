@@ -16,6 +16,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/home" element={<Home />} />
           <Route path="/task" element={<Task />} />
+          <Route path="/task/update/:id" element={<Task />} />
         </Routes>
       </BrowserRouter>
     </>

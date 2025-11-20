@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Clock,
   User,
@@ -7,17 +7,22 @@ import {
   Circle,
   AlertCircle,
   Plus,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 
-import { useGetAllTasksQuery } from "../apis/taskApi";
+import { useDeleteTaskMutation, useGetAllTasksQuery } from "../apis/taskApi";
 import { useNavigate } from "react-router-dom";
 
 const TaskCard = ({ task }) => {
+  const navigate = useNavigate();
+
+  const [deleteTask] = useDeleteTaskMutation();
   const getPriorityColor = (priority) => {
     switch (priority?.toLowerCase()) {
-      case "high":
+      case "pending":
         return "bg-red-500/20 text-red-400 border-red-500/30";
-      case "medium":
+      case "assigned":
         return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
       case "low":
         return "bg-blue-500/20 text-blue-400 border-blue-500/30";
@@ -26,6 +31,14 @@ const TaskCard = ({ task }) => {
     }
   };
 
+  const handleDelete= async(id)=>{
+    try {
+      await deleteTask(id);
+      
+    } catch (error) {
+      console.log("Error while deleting", error);
+    }
+  }
   const getStatusIcon = (status) => {
     switch (status?.toLowerCase()) {
       case "completed":
@@ -67,10 +80,6 @@ const TaskCard = ({ task }) => {
             <Clock size={14} />
             <span>{task.dueDate}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <User size={14} />
-            <span>{task.assignee}</span>
-          </div>
         </div>
         <div
           className={`px-3 py-1 rounded-full text-xs font-medium border ${getPriorityColor(
@@ -82,18 +91,31 @@ const TaskCard = ({ task }) => {
             <span>{task.priority}</span>
           </div>
         </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate(`/task/update/${task._id}`)}
+            className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-sm font-semibold rounded-lg transition-all duration-200 shadow-md shadow-amber-500/30 hover:shadow-lg hover:shadow-amber-500/40 transform hover:scale-105 active:scale-95 border border-amber-400/30 hover:border-amber-300/50"
+          >
+            <Pencil size={14} className="stroke-[2.5]" />
+            <span>Update</span>
+          </button>
+          <button onClick={()=>handleDelete(task._id)} className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm font-semibold rounded-lg transition-all duration-200 shadow-md shadow-red-500/30 hover:shadow-lg hover:shadow-red-500/40 transform hover:scale-105 active:scale-95 border border-red-400/30 hover:border-red-300/50">
+            <Trash2 size={14} className="stroke-[2.5]" />
+            <span>Delete</span>
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
 const Main = () => {
-  // Example tasks - will be replaced with API data
+  const navigate = useNavigate();
+
   const { data, isLoading, isError, error } = useGetAllTasksQuery();
   if (isLoading) {
     return <div>Loading Tasks.....</div>;
   }
-  const navigate = useNavigate();
 
   console.log(isError, error);
 
