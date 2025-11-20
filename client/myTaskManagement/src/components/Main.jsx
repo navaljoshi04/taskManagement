@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import {
   Clock,
   User,
@@ -6,8 +6,11 @@ import {
   CheckCircle2,
   Circle,
   AlertCircle,
+  Plus,
 } from "lucide-react";
+
 import { useGetAllTasksQuery } from "../apis/taskApi";
+
 
 const TaskCard = ({ task }) => {
   const getPriorityColor = (priority) => {
@@ -47,7 +50,7 @@ const TaskCard = ({ task }) => {
         {task.description}
       </p>
 
-      {/* <div className="flex flex-wrap items-center gap-2 mb-4">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
         {task.tags?.map((tag, index) => (
           <span
             key={index}
@@ -56,7 +59,7 @@ const TaskCard = ({ task }) => {
             {tag}
           </span>
         ))}
-      </div> */}
+      </div>
 
       <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
         <div className="flex items-center gap-4 text-xs text-gray-500">
@@ -85,98 +88,39 @@ const TaskCard = ({ task }) => {
 };
 
 const Main = () => {
-  const { data, isLoading, error } = useGetAllTasksQuery();
-  console.log(data, "data");
-  console.log(isLoading, "data");
-  console.log(error, "data");
   // Example tasks - will be replaced with API data
-  const exampleTasks = [
-    {
-      id: 1,
-      title: "Design new dashboard interface",
-      description:
-        "Create a modern and intuitive dashboard design with improved user experience and better data visualization.",
-      status: "in progress",
-      priority: "high",
-      dueDate: "2024-01-15",
-      assignee: "John Doe",
-      tags: ["Design", "UI/UX", "Frontend"],
-    },
-    {
-      id: 2,
-      title: "Implement user authentication",
-      description:
-        "Set up secure authentication system with JWT tokens and refresh token mechanism.",
-      status: "pending",
-      priority: "high",
-      dueDate: "2024-01-20",
-      assignee: "Jane Smith",
-      tags: ["Backend", "Security"],
-    },
-    {
-      id: 3,
-      title: "Write API documentation",
-      description:
-        "Document all API endpoints with examples and error handling scenarios.",
-      status: "completed",
-      priority: "medium",
-      dueDate: "2024-01-10",
-      assignee: "Mike Johnson",
-      tags: ["Documentation", "API"],
-    },
-    {
-      id: 4,
-      title: "Optimize database queries",
-      description:
-        "Review and optimize slow database queries to improve application performance.",
-      status: "in progress",
-      priority: "medium",
-      dueDate: "2024-01-18",
-      assignee: "Sarah Williams",
-      tags: ["Database", "Performance"],
-    },
-    {
-      id: 5,
-      title: "Add unit tests",
-      description:
-        "Write comprehensive unit tests for critical components to ensure code quality.",
-      status: "pending",
-      priority: "low",
-      dueDate: "2024-01-25",
-      assignee: "Tom Brown",
-      tags: ["Testing", "Quality"],
-    },
-    {
-      id: 6,
-      title: "Setup CI/CD pipeline",
-      description:
-        "Configure continuous integration and deployment pipeline for automated testing and deployment.",
-      status: "pending",
-      priority: "medium",
-      dueDate: "2024-01-22",
-      assignee: "Emily Davis",
-      tags: ["DevOps", "CI/CD"],
-    },
-  ];
+  const { data, isLoading, isError, error } = useGetAllTasksQuery();
+  if (isLoading) {
+    return <div>Loading Tasks.....</div>;
+  }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-white mb-2">My Tasks</h1>
-          <p className="text-gray-400">
-            Manage and track all your tasks in one place
-          </p>
-        </div>
+  console.log(isError, error);
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {exampleTasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
-          ))}
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-white mb-2">My Tasks</h1>
+            <p className="text-gray-400">
+              Manage and track all your tasks in one place
+            </p>
+            <button
+             
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/50 hover:shadow-xl hover:shadow-blue-500/60 transition-all duration-300 transform hover:scale-105 active:scale-95 border border-blue-400/30 hover:border-blue-300/50"
+            >
+              <Plus size={20} className="stroke-[2.5]" />
+              <span>Create Task</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {data?.tasks?.map((task) => (
+              <TaskCard key={task._id} task={task} />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
 };
 
 export default Main;

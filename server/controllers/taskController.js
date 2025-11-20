@@ -13,14 +13,13 @@ export const getTasks = async (req, res) => {
 
 export const createTask = async (req, res) => {
   try {
-    const { title, description, status, userID, dueDate } = req.body;
-    if (!title || !description || !userID) {
+    const { title, description, status, dueDate } = req.body;
+    if (!title || !description) {
       return res.status(401).json({ message: "All fields are required" });
     }
     const checkIfTaskIsDuplicate = await Task.findOne({
       title,
       description,
-      userID,
     });
     if (checkIfTaskIsDuplicate) {
       return res.status(409).json({
@@ -32,7 +31,6 @@ export const createTask = async (req, res) => {
       title,
       description,
       status,
-      userID,
       dueDate,
     });
 
@@ -70,10 +68,10 @@ export const updateTaskById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { title, description, status, userID, dueDate } = req.body;
+    const { title, description, status, dueDate } = req.body;
     const updatedTask = await Task.findByIdAndUpdate(
       id,
-      { title, description, status, userID, dueDate },
+      { title, description, status, dueDate },
       { new: true }
     );
     if (!updatedTask) {

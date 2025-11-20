@@ -29,8 +29,9 @@ const Login = () => {
         "http://localhost:3000/api/v1/auth/login",
         formData
       );
-      console.log(response.data);
+      console.log(response.data, "ressponse from login");
       localStorage.setItem("token", response?.data?.token);
+      console.log("token", localStorage.getItem("token"));
       setSuccess("Login successfull ! Redirecting to home page...");
       setTimeout(() => {
         setSuccess("");
@@ -45,7 +46,6 @@ const Login = () => {
       console.log(error);
     }
   };
-  console.log(formData);
   return (
     <div
       className="h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center"

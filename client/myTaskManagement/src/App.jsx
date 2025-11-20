@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./auth/Login";
 import Signup from "./auth/Signup";
 import Home from "./components/Home";
+import Task from "./components/Task";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/task" element={<Task />} />
         </Routes>
       </BrowserRouter>
     </>
