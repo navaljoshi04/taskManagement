@@ -8,9 +8,8 @@ const TaskComponent = () => {
     description: "",
     status: "pending",
     dueDate: "",
-    userID: "",
   });
-
+  const [successMsg, setSuccessMsg] = useState("");
   if (isLoading) {
     return <div>Loading .... please wait</div>;
   }
@@ -23,6 +22,13 @@ const TaskComponent = () => {
     try {
       const result = await createTask(formData).unwrap();
       console.log("Task created", result);
+      setFormData({
+        title: "",
+        description: "",
+        status: "",
+        dueDate: "",
+      });
+      setSuccessMsg("Sucessfully created the task ");
     } catch (error) {
       console.log("Error creating task:", error);
     }
@@ -93,22 +99,6 @@ const TaskComponent = () => {
             />
           </div>
 
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Assign User <span className="text-red-500">*</span>
-            </label>
-            <select
-              name="userID"
-              value={formData.userID}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            >
-              <option value="">Select a user...</option>
-              {/* TODO: Populate with users from API */}
-              <option value="user1">User 1</option>
-              <option value="user2">User 2</option>
-            </select>
-          </div>
           <button
             type="submit"
             onClick={handleCreateTask}
