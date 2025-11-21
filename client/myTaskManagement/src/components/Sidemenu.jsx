@@ -16,7 +16,6 @@ const Sidemenu = ({ toggleSideBar, setToggleSideBar }) => {
           alt="logo"
           className="w-20 h-20 object-cover"
         />
-        <h3 className="text-[14px] text-red-700">Task Management</h3>
       </div>
       <div className="p-4 flex justify-between items-center border-b border-gray-700">
         <h2 className="text-[12px] font-semibold">Menu</h2>

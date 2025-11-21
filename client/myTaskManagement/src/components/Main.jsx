@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import {
   Clock,
   User,
@@ -9,10 +9,12 @@ import {
   Plus,
   Pencil,
   Trash2,
+  XCircle,
 } from "lucide-react";
 
 import { useDeleteTaskMutation, useGetAllTasksQuery } from "../apis/taskApi";
 import { useNavigate } from "react-router-dom";
+import { SearchContext } from "../context/SearchContext";
 
 const TaskCard = ({ task }) => {
   const navigate = useNavigate();
@@ -31,24 +33,29 @@ const TaskCard = ({ task }) => {
     }
   };
 
-  const handleDelete= async(id)=>{
+  const handleDelete = async (id) => {
     try {
       await deleteTask(id);
-      
     } catch (error) {
       console.log("Error while deleting", error);
     }
-  }
+  };
+
   const getStatusIcon = (status) => {
     switch (status?.toLowerCase()) {
       case "completed":
         return <CheckCircle2 className="text-green-400" size={18} />;
-      case "in progress":
+      case "in-progress":
         return <AlertCircle className="text-yellow-400" size={18} />;
-      default:
-        return <Circle className="text-gray-400" size={18} />;
+      case "pending":
+        return <Clock className="text-gray-400" size={18} />;
+
+      case "cancelled":
+        return <XCircle className="text-red-500" size={18} />;
     }
   };
+
+  const isStatusCompleted = task?.status?.toLowerCase() === "completed";
 
   return (
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 border border-gray-700/50 hover:border-gray-600 hover:shadow-2xl hover:shadow-gray-900/50 transition-all duration-300 cursor-pointer group">
@@ -93,13 +100,25 @@ const TaskCard = ({ task }) => {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => navigate(`/task/update/${task._id}`)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-sm font-semibold rounded-lg transition-all duration-200 shadow-md shadow-amber-500/30 hover:shadow-lg hover:shadow-amber-500/40 transform hover:scale-105 active:scale-95 border border-amber-400/30 hover:border-amber-300/50"
+            onClick={() => {
+              if (!isStatusCompleted) navigate(`/task/update/${task._id}`);
+            }}
+            disabled={isStatusCompleted}
+            className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 border 
+    ${
+      isStatusCompleted
+        ? "bg-gray-600 cursor-not-allowed opacity-50 border-gray-500"
+        : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md shadow-amber-500/30 hover:shadow-lg hover:shadow-amber-500/40 transform hover:scale-105 active:scale-95 border-amber-400/30 hover:border-amber-300/50"
+    }
+  `}
           >
             <Pencil size={14} className="stroke-[2.5]" />
             <span>Update</span>
           </button>
-          <button onClick={()=>handleDelete(task._id)} className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm font-semibold rounded-lg transition-all duration-200 shadow-md shadow-red-500/30 hover:shadow-lg hover:shadow-red-500/40 transform hover:scale-105 active:scale-95 border border-red-400/30 hover:border-red-300/50">
+          <button
+            onClick={() => handleDelete(task._id)}
+            className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm font-semibold rounded-lg transition-all duration-200 shadow-md shadow-red-500/30 hover:shadow-lg hover:shadow-red-500/40 transform hover:scale-105 active:scale-95 border border-red-400/30 hover:border-red-300/50"
+          >
             <Trash2 size={14} className="stroke-[2.5]" />
             <span>Delete</span>
           </button>
@@ -110,13 +129,27 @@ const TaskCard = ({ task }) => {
 };
 
 const Main = () => {
+  const { searchText } = useContext(SearchContext);
   const navigate = useNavigate();
 
+  const [statusFilter, setStatusFilter] = useState("all");
+
   const { data, isLoading, isError, error } = useGetAllTasksQuery();
+
   if (isLoading) {
     return <div>Loading Tasks.....</div>;
   }
+  const filteredTask = data?.tasks?.filter((task) => {
+    const matchesTitle = task?.title
+      .toLowerCase()
+      .includes(searchText.toLowerCase());
+    const matchStatus =
+      statusFilter === "all" || task?.status.toLowerCase() === statusFilter;
+    return matchesTitle && matchStatus;
+  });
 
+  console.log(filteredTask, "filtered task ");
+  console.log("searchtext", searchText);
   console.log(isError, error);
 
   return (
@@ -136,10 +169,36 @@ const Main = () => {
           </button>
         </div>
 
+        <div className="flex gap-2 mb-6">
+          {["all", "pending", "in-progress", "completed", "cancelled"].map(
+            (status) => (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                className={`
+                px-3 py-1.5 rounded-lg text-sm font-medium transition-all 
+                border
+                ${
+                  statusFilter === status
+                    ? "bg-blue-600 text-white border-blue-400"
+                    : "bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700"
+                }
+              `}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </button>
+            )
+          )}
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {data?.tasks?.map((task) => (
-            <TaskCard key={task._id} task={task} />
-          ))}
+          {filteredTask?.length > 0 ? (
+            filteredTask?.map((task) => <TaskCard key={task._id} task={task} />)
+          ) : (
+            <p className="text-gray-400 text-center col-span-full">
+              No tasks found.
+            </p>
+          )}
         </div>
       </div>
     </div>
