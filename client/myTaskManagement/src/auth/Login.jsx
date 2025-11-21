@@ -32,6 +32,7 @@ const Login = () => {
       console.log(response.data, "ressponse from login");
       localStorage.setItem("token", response?.data?.token);
       console.log("token", localStorage.getItem("token"));
+      localStorage.setItem("user", JSON.stringify(response?.data?.user));
       setSuccess("Login successfull ! Redirecting to home page...");
       setTimeout(() => {
         setSuccess("");

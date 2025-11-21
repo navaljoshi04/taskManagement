@@ -1,10 +1,7 @@
 import React, { useContext, useState } from "react";
 import {
   Clock,
-  User,
-  Flag,
   CheckCircle2,
-  Circle,
   AlertCircle,
   Plus,
   Pencil,
@@ -20,18 +17,6 @@ const TaskCard = ({ task }) => {
   const navigate = useNavigate();
 
   const [deleteTask] = useDeleteTaskMutation();
-  const getPriorityColor = (priority) => {
-    switch (priority?.toLowerCase()) {
-      case "pending":
-        return "bg-red-500/20 text-red-400 border-red-500/30";
-      case "assigned":
-        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
-      case "low":
-        return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-      default:
-        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
-    }
-  };
 
   const handleDelete = async (id) => {
     try {
@@ -54,6 +39,14 @@ const TaskCard = ({ task }) => {
         return <XCircle className="text-red-500" size={18} />;
     }
   };
+
+  const convertDateIntoReadableFormat = new Date(
+    task?.dueDate
+  ).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 
   const isStatusCompleted = task?.status?.toLowerCase() === "completed";
 
@@ -85,19 +78,10 @@ const TaskCard = ({ task }) => {
         <div className="flex items-center gap-4 text-xs text-gray-500">
           <div className="flex items-center gap-1.5">
             <Clock size={14} />
-            <span>{task.dueDate}</span>
+            <span>{convertDateIntoReadableFormat} </span>
           </div>
         </div>
-        <div
-          className={`px-3 py-1 rounded-full text-xs font-medium border ${getPriorityColor(
-            task.priority
-          )}`}
-        >
-          <div className="flex items-center gap-1.5">
-            <Flag size={12} />
-            <span>{task.priority}</span>
-          </div>
-        </div>
+
         <div className="flex items-center gap-2">
           <button
             onClick={() => {
@@ -148,6 +132,10 @@ const Main = () => {
     return matchesTitle && matchStatus;
   });
 
+  const sortTaskByDate = [...filteredTask].sort(
+    (a, b) => new Date(a.dueDate) - new Date(b.dueDate)
+  );
+
   console.log(filteredTask, "filtered task ");
   console.log("searchtext", searchText);
   console.log(isError, error);
@@ -192,8 +180,10 @@ const Main = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTask?.length > 0 ? (
-            filteredTask?.map((task) => <TaskCard key={task._id} task={task} />)
+          {sortTaskByDate?.length > 0 ? (
+            sortTaskByDate?.map((task) => (
+              <TaskCard key={task._id} task={task} />
+            ))
           ) : (
             <p className="text-gray-400 text-center col-span-full">
               No tasks found.
